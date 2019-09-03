@@ -1,0 +1,9 @@
+.git/
+doc/
+.gitignore
+_apidoc.py
+apidoc.json
+docker-stack.yml
+Dockerfile
+Jenkinsfile
+*.md

@@ -1,0 +1,72 @@
+version: "3.7"
+
+services:
+  gunicorn:
+    image: ${APP_IMAGE}
+    command: gunicorn run:app -b 0.0.0.0:8000 -k eventlet -w ${GUNICORN_WORKERS:-3} --keep-alive 60
+    deploy:
+      replicas: ${GUNICORN_REPLICAS:-1}
+      placement:
+        constraints:
+          - node.labels.worker == true
+      resources:
+        limits:
+          cpus: "${GUNICORN_CPU_LIMIT:-1.0}"
+          memory: ${GUNICORN_MEM_LIMIT:-200M}
+        reservations:
+          memory: ${GUNICORN_MEM_RESERVATION:-60M}
+    environment:
+      - SERVER_NAME
+      - SUB_DOMAIN_ADMIN
+      - LOG_LEVEL
+      - MYSQL_USER
+      - MYSQL_PASSWORD
+      - MYSQL_HOST
+      - MYSQL_PORT
+      - MYSQL_DB
+      - REDIS_HOST
+      - REDIS_PORT
+      - REDIS_DB
+      - AES_KEY_SEED
+      - QN_ACCESS_KEY
+      - QN_SECRET_KEY
+      - QN_BUCKET
+      - QN_DOMAIN
+    labels:
+      - "aliyun.logs.${LOG_NAME}=stdout"
+    ports:
+      - "${PUBLISHED_PORT}:8000"
+
+  huey:
+    image: ${APP_IMAGE}
+    command: huey_consumer.py app.tasks.huey -w ${HUEY_WORKERS:-2} -s 60
+    deploy:
+      replicas: ${HUEY_REPLICAS:-1}
+      placement:
+        constraints:
+          - node.labels.worker == true
+      resources:
+        limits:
+          cpus: "${HUEY_CPU_LIMIT:-1.0}"
+          memory: ${HUEY_MEM_LIMIT:-100M}
+        reservations:
+          memory: ${HUEY_MEM_RESERVATION:-30M}
+    environment:
+      - SERVER_NAME
+      - SUB_DOMAIN_ADMIN
+      - LOG_LEVEL
+      - MYSQL_USER
+      - MYSQL_PASSWORD
+      - MYSQL_HOST
+      - MYSQL_PORT
+      - MYSQL_DB
+      - REDIS_HOST
+      - REDIS_PORT
+      - REDIS_DB
+      - AES_KEY_SEED
+      - QN_ACCESS_KEY
+      - QN_SECRET_KEY
+      - QN_BUCKET
+      - QN_DOMAIN
+    labels:
+      - "aliyun.logs.${LOG_NAME}=stdout"

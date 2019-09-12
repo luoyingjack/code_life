@@ -40,3 +40,8 @@
     APP_REGISTRY
     WWW_ROOT_DIR
     DEVELOPER_EMAIL
+    
+    
+**通联支付文档**  
+    
+    https://tlt.allinpay.com/apidoc/

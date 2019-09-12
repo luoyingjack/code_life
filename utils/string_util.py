@@ -1,6 +1,6 @@
 import random
 import string
-from typing import Union
+from typing import Union, Optional
 
 
 def to_bytes(bytes_or_str: Union[bytes, str]) -> bytes:
@@ -49,3 +49,12 @@ def gen_random_str(length: int, chars: str='uld', *, prefix: str='', suffix: str
         raise ValueError('Invalid chars')
     elements = random.choices(population, k=random_part_len)
     return prefix + ''.join(elements) + suffix
+
+
+def nullable_strip(s: Optional[str]) -> Optional[str]:
+    """移除字符串首尾的空格并返回，若结果为空字符串则返回None"""
+    if s:
+        value = s.strip() or None
+    else:
+        value = None
+    return value

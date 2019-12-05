@@ -5,6 +5,9 @@ from typing import BinaryIO, Iterable, Optional, Union
 
 import requests
 from qiniu import Auth, put_data, put_file
+from aliyunsdkcore.client import AcsClient
+from aliyunsdkcore.profile import region_provider
+from aliyunsdkdysmsapi.request.v20170525 import SendSmsRequest
 
 from .string_util import to_bytes
 
@@ -222,6 +225,26 @@ class WXMPService:
             raise RuntimeError(repr(ret))
 
 
+class AliyunSmsService:
+    """阿里云短信平台"""
+    def __init__(self, access_key, access_secret):
+        self.acs_client = AcsClient(access_key, access_secret, 'cn-beijing')
+        region_provider.add_endpoint('Dysmsapi', 'cn-beijing', 'dysmsapi.aliyuncs.com')
+
+    def send_sms(self, business_id, phone_numbers, sign_name, template_code, template_param=None):
+        sms_request = SendSmsRequest.SendSmsRequest()
+        sms_request.set_TemplateCode(template_code)
+        if template_param is not None:
+            sms_request.set_TemplateParam(template_param)
+        sms_request.set_OutId(business_id)
+        sms_request.set_SignName(sign_name)
+        sms_request.set_PhoneNumbers(phone_numbers)
+        sms_response = self.acs_client.do_action_with_exception(sms_request)
+        return sms_response
+
+
 qn_service = QNService(getenv('QN_ACCESS_KEY'), getenv('QN_SECRET_KEY'), getenv('QN_BUCKET'), getenv('QN_DOMAIN'))
-# yp_service = YPService(getenv('YP_API_KEY'))
-# wx_mp_service = WXMPService(getenv('WX_MP_APP_ID'), getenv('WX_MP_APP_SECRET'))
+yp_service = YPService(getenv('YP_API_KEY'))
+wx_mp_service = WXMPService(getenv('WX_MP_APP_ID'), getenv('WX_MP_APP_SECRET'))
+aliyun_sms_service = AliyunSmsService(getenv('ALI_SMS_KEY'), getenv('ALI_SMS_SECRET'))
+

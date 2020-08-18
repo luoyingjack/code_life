@@ -17,7 +17,7 @@ jmespath==0.9.4
 MarkupSafe==1.1.1
 monotonic==1.5
 peewee==3.9.6
-Pillow==6.2.0
+Pillow==7.0.0
 pycryptodome==3.8.2
 PyMySQL==0.9.3
 qiniu==7.2.6
@@ -29,3 +29,4 @@ urllib3==1.25.3
 Werkzeug==0.15.5
 XlsxWriter==1.2.1
 xmltodict==0.11.0
+openpyxl==3.0.4

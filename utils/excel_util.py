@@ -6,8 +6,10 @@ import urllib.request
 import zipfile
 
 import xlsxwriter
-from app.models import UserDemo
+from app.models import UserDemo, Authorizer
 # 跳过ssl证书验证
+from utils.string_util import gen_random_str
+
 context = ssl._create_unverified_context()
 
 
@@ -104,6 +106,46 @@ def compenent(excel_file_path):
     if zip_file_path != '':
         if unzip_file(zip_file_path):
             read_img(zip_file_path)
+
+
+def export_platform_user_openid(a_id: int):
+    """导出公众号粉丝openid上传七牛"""
+    import openpyxl
+    from utils.service_util import qn_service
+    from io import BytesIO
+    authorizer = Authorizer.get_by_id(a_id)
+    book = openpyxl.Workbook()
+    sheet = book.create_sheet(index=0)
+    i = 1
+    total, all_count = 1, 0
+    next_openid = ''
+    while total > all_count:
+        try:
+            ret = authorizer.get_users(next_openid)
+            if ret.get('errcode'):
+                print(f'Ignore: 授权更新粉丝头像，platform = {authorizer.id}, {ret=}')
+                break
+            data, total, count, next_openid = map(ret.get, ['data', 'total', 'count', 'next_openid'])
+            if data:
+                openid_list = data.get('openid')
+            else:
+                openid_list = []
+            all_count += count
+        except Exception as e:
+            print(f'Fail: 授权更新粉丝头像，platform = {authorizer.id}', e)
+            break
+
+        for openid in openid_list:
+            sheet.cell(column=1, row=i, value=openid)
+            if i and i % 10000 == 0:
+                print(f'运行数量={i}', flush=True)
+            i += 1
+    key = gen_random_str(20, prefix='tmp/', suffix='.xls')
+    output = BytesIO()
+    book.save(output)
+    output.seek(0)
+    url = qn_service.upload_data(key, output.getvalue())
+    print(f'url={url}', flush=True)
 
 
 if __name__ == '__main__':

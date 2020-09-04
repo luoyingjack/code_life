@@ -5,9 +5,10 @@ from itertools import product
 chars = """
 qwertyuiopasdfghjklzxcvbnm1234567890QWERTYUIOPASDFGHJKLZXCVBNM
 """
-
-length = 1  # 密码长度，从第n位开始破解，如果第n位没有，则从n+1位开始，以此类推
-file_name = '哈哈.rtf.zip'
+# 密码长度，从第n位开始破解，如果第n位没有，则从n+1位开始，以此类推
+length = 1
+# 文件全称，带后缀
+file_name = ''
 def bruteForce(zip_file):
     try:
         myZip = zipfile.ZipFile(zip_file)

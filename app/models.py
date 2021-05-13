@@ -19,7 +19,7 @@ from utils.aes_util import aes_crypto
 
 
 db = MySQLDatabase(
-    getenv('MYSQL_DB'),
+    getenv('MYSQL_DB') or 'code_life-api',
     user=getenv('MYSQL_USER'),
     password=getenv('MYSQL_PASSWORD'),
     host=getenv('MYSQL_HOST') or '127.0.0.1',
